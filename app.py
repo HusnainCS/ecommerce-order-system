@@ -1,4 +1,5 @@
 import streamlit as st
+from datetime import datetime
 
 # Initialize session state
 if 'stack_recent_order' not in st.session_state:
@@ -10,11 +11,13 @@ if 'queue_pending_order' not in st.session_state:
 # Callback function to handle order placement and clear input
 def place_order():
     product = st.session_state.product_input
-    if product:
-        st.session_state.stack_recent_order.append(product)
-        st.session_state.queue_pending_order.append(product)
-        st.success(f"Order placed for: {product}")
-        st.session_state.product_input = ""  # Clear input here safely
+     if product:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        order_info = f"{product} (at {timestamp})"
+        st.session_state.stack_recent_order.append(order_info)
+        st.session_state.queue_pending_order.append(order_info)
+        st.success(f"✅ Order placed for: {order_info}")
+        st.session_state.product_input = ""y
     else:
         st.warning("Please enter a product name.")
 
@@ -44,3 +47,12 @@ if st.button("Process Next Order"):
         st.success(f"Processed order: {processed}")
     else:
         st.warning("No pending orders to process.")
+
+search_term = st.text_input("🔎 Search Order")
+if search_term:
+    matches = [o for o in st.session_state.queue_pending_order if search_term.lower() in o.lower()]
+    if matches:
+        st.write("Found in pending orders:", ", ".join(matches))
+    else:
+        st.warning("No matching order found.")
+
